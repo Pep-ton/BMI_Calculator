@@ -9,7 +9,6 @@ Jinja2==3.1.5
 MarkupSafe==3.0.2
 pycryptodomex==3.18.0
 PyPDF2==3.0.1
-pypiwin32==223
 pyttsx3==2.90
 typing_extensions==4.9.0
 Werkzeug==3.1.3
