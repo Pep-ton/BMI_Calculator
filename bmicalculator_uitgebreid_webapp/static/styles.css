@@ -1,0 +1,152 @@
+/* Algemene resets */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+/* Basis styling voor de body */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #667eea, #764ba2);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, color 0.3s;
+}
+/* Dark Mode styling */
+body.dark-mode {
+    background: #222;
+    color: #ddd;
+}
+/* Container styling */
+.container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    max-width: 600px;
+    width: 90%;
+    text-align: center;
+}
+/* Form container extra margin */
+.form-container {
+    margin: 20px 0;
+}
+/* Labels en inputs */
+label {
+    display: block;
+    margin: 10px 0;
+    font-size: 16px;
+    text-align: left;
+}
+input, select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+/* Knopstijl */
+button {
+    background-color: #ff4081;
+    color: #ffffff;
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 15px;
+    width: 30%;
+    transition: background-color 0.3s;
+}
+button:hover {
+    background-color: #ff79a2;
+}
+/* Resultaat container */
+.result-container {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    text-align: left;
+}
+/* Error bericht styling */
+.error-message {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 0, 0, 0.3);
+    border-radius: 10px;
+}
+/* Dark Mode tweaks voor invoervelden */
+body.dark-mode input,
+body.dark-mode select {
+    background: #333;
+    color: #ddd;
+}
+/* Fade-in animatie */
+.fade-in {
+    animation: fadeIn 1s ease-in;
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.dark-mode-toggle label {
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+/* Nieuwe dark mode schakelaar stijl */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px; /* Verklein de breedte */
+    height: 20px; /* Verklein de hoogte */
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 20px; /* Pas de radius aan voor de nieuwe hoogte */
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 14px; /* Verklein de cirkel */
+    width: 14px; /* Verklein de cirkel */
+    left: 3px; /* Pas de positie aan */
+    bottom: 3px; /* Pas de positie aan */
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px); /* Pas de translatiewaarde aan voor de nieuwe breedte */
+}
+
+.dark-mode-label {
+    margin-left: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}

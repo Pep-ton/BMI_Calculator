@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dieet Assistent</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Laad voorkeuren uit localStorage voor invoervelden
+        const fields = ['weight', 'height', 'age', 'gender', 'activity', 'kcal_intake', 'weight_goal', 'diet_type'];
+        fields.forEach(field => {
+            if (localStorage.getItem(field)) {
+                const elem = document.querySelector(`[name=${field}]`);
+                if (elem) { 
+                    elem.value = localStorage.getItem(field);
+                }
+            }
+        });
+        // Sla voorkeuren op bij wijziging
+        document.querySelectorAll('input, select').forEach(element => {
+            element.addEventListener('change', () => {
+                localStorage.setItem(element.name, element.value);
+            });
+        });
+
+        // Dark Mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            darkModeToggle.checked = true;
+        }
+        darkModeToggle.addEventListener('change', () => {
+            document.body.classList.toggle('dark-mode');
+            if(document.body.classList.contains('dark-mode')){
+                localStorage.setItem('darkMode', 'enabled');
+            } else {
+                localStorage.setItem('darkMode', 'disabled');
+            }
+        });
+
+        // Chart.js configuratie
+        var ctx = document.getElementById('macroChart').getContext('2d');
+        const extraInsights = {
+            'Proteïne': 'Helpt bij spierherstel en -groei.',
+            'Koolhydraten': 'Belangrijk voor energie.',
+            'Vetten': 'Belangrijk voor hormonen en cellen.'
+        };
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [
+                    `Proteïne: {{ result.protein }}g`,
+                    `Koolhydraten: {{ result.carbs }}g`,
+                    `Vetten: {{ result.fats }}g`
+                ],
+                datasets: [{
+                    data: [{{ result.protein }}, {{ result.carbs }}, {{ result.fats }}],
+                    backgroundColor: ['#ff6384', '#36a2eb', '#ffce56'],
+                    borderColor: '#fff',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                var label = context.label || '';
+                                var macro = label.split(':')[0];
+                                var insight = extraInsights[macro] ? ' - ' + extraInsights[macro] : '';
+                                return label + insight;
+                            }
+                        },
+                        bodyFont: {
+                            size: 12 // Maak de tekst kleiner
+                        },
+                        boxWidth: 10, // Pas de breedte van het tooltipvakje aan
+                        padding: 10, // Voeg padding toe aan het tooltipvakje
+                        displayColors: false // Verberg de kleurvakken in de tooltip
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { size: 14 },
+                            color: '#fff'
+                        }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 class="fade-in">Dieet Assistent</h1>
+        <h2 class="subtitle fade-in">BMI, BMR, TDEE & Macro Calculator</h2>
+        
+        <!-- Dark Mode Toggle direct onder de ondertitel -->
+        <div class="dark-mode-toggle fade-in">
+            <label class="switch">
+                <input type="checkbox" id="darkModeToggle">
+                <span class="slider round"></span>
+            </label>
+            <span class="dark-mode-label">🌙 Dark Mode</span>
+        </div>
+        
+        <form method="post" class="form-container fade-in">
+            <label>Gewicht (kg): <input type="number" name="weight" step="0.1" required></label>
+            <label>Lengte (cm): <input type="number" name="height" step="0.1" required></label>
+            <label>Leeftijd: <input type="number" name="age" required></label>
+            <label>Geslacht:
+                <select name="gender" required>
+                    <option value="man">Man</option>
+                    <option value="vrouw">Vrouw</option>
+                </select>
+            </label>
+            <label>Activiteitsniveau:
+                <select name="activity" required>
+                    <option value="1">Weinig beweging (1.2)</option>
+                    <option value="2">Licht actief (1.375)</option>
+                    <option value="3">Matig actief (1.55)</option>
+                    <option value="4">Zeer actief (1.725)</option>
+                    <option value="5">Extreem actief (1.9)</option>
+                </select>
+            </label>
+            <label>Dagelijkse kcal-inname: <input type="number" name="kcal_intake" step="10"></label>
+            <label>Doel:
+                <select name="weight_goal">
+                    <option value="">Geen specifiek doel</option>
+                    <option value="afvallen">Afvallen</option>
+                    <option value="aankomen">Aankomen</option>
+                </select>
+            </label>
+            <label>Dieetvoorkeur:
+                <select name="diet_type">
+                    <option value="balanced">Gebalanceerd</option>
+                    <option value="high_protein">Hoog in proteïne</option>
+                    <option value="low_carb">Laag in koolhydraten</option>
+                    <option value="low_fat">Laag in vet</option>
+                </select>
+            </label>
+            <button type="submit" class="fade-in">Bereken</button>
+        </form>
+        
+        {% if result %}
+        <div class="result-container fade-in" style="text-align: center;">
+            <h2>Resultaten:</h2>
+            <p><strong>BMI:</strong> {{ result.bmi }} ({{ result.category }})</p>
+            <p><strong>BMR:</strong> {{ result.bmr }} kcal/dag</p>
+            <p><strong>TDEE:</strong> {{ result.tdee }} kcal/dag</p>
+            {% if result.kcal_advice is not none %}
+            <p><strong>Calorie-advies voor {{ result.weight_goal }}:</strong> {{ result.kcal_advice }} kcal/dag.</p>
+            {% endif %}
+            <h2>Macro Verdeling</h2>
+            <!-- Grafiek iets kleiner en gecentreerd -->
+            <div style="max-width: 300px; margin: 0 auto;">
+                <canvas id="macroChart"></canvas>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if result.error %}
+        <div class="error-message fade-in">
+            <p>{{ result.error }}</p>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
